@@ -8,8 +8,8 @@ namespace Assessment_ClientApp2
     // **************************************************
     //
     // Assessment: Client App 2.0
-    // Author: 
-    // Dated: 
+    // Author: Carma Aten
+    // Dated: 11/27/2019
     // Level (Novice, Apprentice, or Master): 
     //
     // **************************************************    
@@ -25,7 +25,8 @@ namespace Assessment_ClientApp2
             //
             // initialize monster list from method
             //
-            List<Monster> monsters = InitializeMonsterList();
+            //List<Monster> monsters = InitializeMonsterList();
+            List<Monster> monsters = ReadMonstersFromFile(@"Data\Data.txt");
 
             //
             // read monsters from data file
@@ -59,24 +60,61 @@ namespace Assessment_ClientApp2
                 {
                     Name = "Sid",
                     Age = 145,
-                    Attitude = Monster.EmotionalState.happy
+                    Attitude = Monster.EmotionalState.happy,
+                    InTribe = Monster.Tribe.geeks,
+                    Active = true
                 },
 
                 new Monster()
                 {
                     Name = "Lucy",
                     Age = 125,
-                    Attitude = Monster.EmotionalState.bored
+                    Attitude = Monster.EmotionalState.bored,
+                    InTribe = Monster.Tribe.nerds,
+                    Active = false
                 },
 
                 new Monster()
                 {
                     Name = "Bill",
                     Age = 934,
-                    Attitude = Monster.EmotionalState.sad
-                }
+                    Attitude = Monster.EmotionalState.sad,
+                    InTribe = Monster.Tribe.weirdos,
+                    Active = true
+                },
 
             };
+
+            return monsters;
+        }
+
+        static List<Monster> ReadMonstersFromFile(string path)
+        {
+            List<Monster> monsters = new List<Monster>();
+            string[] monstersString = File.ReadAllLines(path);
+            Monster newMonster = new Monster();
+
+            foreach (string line in monstersString)
+            {
+                string[] newMonsterString = line.Split(',');
+
+                // Assign values to a monster
+                newMonster.Name = newMonsterString[0];
+
+                int.TryParse(newMonsterString[1], out int age);
+                newMonster.Age = age;
+
+                Enum.TryParse(newMonsterString[2], out Monster.EmotionalState attitude);
+                newMonster.Attitude = attitude;
+
+                Enum.TryParse(newMonsterString[3], out Monster.Tribe tribe);
+                newMonster.InTribe = tribe;
+
+                bool.TryParse(newMonsterString[4], out bool active);
+                newMonster.Active = active;
+
+                monsters.Add(newMonster);
+            }
 
             return monsters;
         }
@@ -106,6 +144,7 @@ namespace Assessment_ClientApp2
                 Console.WriteLine("\tc) Add Monster");
                 Console.WriteLine("\td) Delete Monster");
                 Console.WriteLine("\te) Update Monster");
+                Console.WriteLine("\tf) Write To Data File");
                 Console.WriteLine("\tq) Quit");
                 Console.Write("\t\tEnter Choice:");
                 menuChoice = Console.ReadLine().ToLower();
@@ -134,6 +173,10 @@ namespace Assessment_ClientApp2
                     case "e":
                         DisplayUpdateMonster(monsters);
                         break;
+
+                    case "f":
+                        DisplayWriteToDataFile(monsters);
+                        break;
                         
                     case "q":
                         quitApplication = true;
@@ -156,12 +199,10 @@ namespace Assessment_ClientApp2
         {
             DisplayScreenHeader("All Monsters");
 
-            Console.WriteLine("\t***************************");
             foreach (Monster monster in monsters)
             {
                 MonsterInfo(monster);
                 Console.WriteLine();
-                Console.WriteLine("\t***************************");
             }
 
             DisplayContinuePrompt();
@@ -223,6 +264,7 @@ namespace Assessment_ClientApp2
         static void DisplayAddMonster(List<Monster> monsters)
         {
             Monster newMonster = new Monster();
+            bool couldParse = false;
 
             DisplayScreenHeader("Add Monster");
 
@@ -231,12 +273,40 @@ namespace Assessment_ClientApp2
             //
             Console.Write("\tName: ");
             newMonster.Name = Console.ReadLine();
-            Console.Write("\tAge: ");
-            int.TryParse(Console.ReadLine(), out int age);
-            newMonster.Age = age;
-            Console.Write("\tAttitude: ");
-            Enum.TryParse(Console.ReadLine(), out Monster.EmotionalState attitude);
-            newMonster.Attitude = attitude;
+
+            do
+            {
+                Console.Write("\tAge: ");
+                couldParse = int.TryParse(Console.ReadLine(), out int age);
+                newMonster.Age = age;
+            } while (!couldParse);
+
+            couldParse = false;
+            do
+            {
+                Console.Write("\tAttitude: ");
+                couldParse = Enum.TryParse(Console.ReadLine(), out Monster.EmotionalState attitude);
+                newMonster.Attitude = attitude;
+            } while (!couldParse);
+
+            couldParse = false;
+            do
+            {
+                Console.WriteLine("\tTribe: ");
+                couldParse = Enum.TryParse(Console.ReadLine(), out Monster.Tribe tribe);
+                newMonster.InTribe = tribe;
+            } while (!couldParse);
+
+            couldParse = false;
+            do
+            {
+                Console.WriteLine("\tStatus of Activity: ");
+                couldParse = bool.TryParse(Console.ReadLine(), out bool active);
+                newMonster.Active = active;
+            } while (!couldParse);
+
+
+
 
             //
             // echo new monster properties
@@ -388,7 +458,12 @@ namespace Assessment_ClientApp2
             userResponse = Console.ReadLine();
             if (userResponse != "")
             {
-                int.TryParse(userResponse, out int age);
+                bool couldParse = false;
+                int age;
+                do
+                {
+                    couldParse = int.TryParse(userResponse, out age);
+                } while (!couldParse);
                 selectedMonster.Age = age;
             }
 
@@ -396,8 +471,43 @@ namespace Assessment_ClientApp2
             userResponse = Console.ReadLine();
             if (userResponse != "")
             {
-                Enum.TryParse(userResponse, out Monster.EmotionalState attitude);
+                bool couldParse = false;
+                Monster.EmotionalState attitude;
+
+                do
+                {
+                    couldParse = Enum.TryParse(userResponse, out attitude);
+                } while (!couldParse);
                 selectedMonster.Attitude = attitude;
+            }
+
+            Console.Write($"\tCurrent Tribe: {selectedMonster.InTribe} New Tribe: ");
+            userResponse = Console.ReadLine();
+            if (userResponse != "")
+            {
+                bool couldParse = false;
+                Monster.Tribe tribe;
+
+                do
+                {
+                    couldParse = Enum.TryParse(userResponse, out tribe);
+                } while (!couldParse);
+                
+                selectedMonster.InTribe = tribe;
+            }
+
+            Console.Write($"\tCurrent Status of Activity: {selectedMonster.Active} New Status of Activity: ");
+            userResponse = Console.ReadLine();
+            if (userResponse != "")
+            {
+                bool couldParse;
+                bool active;
+
+                do
+                {
+                    couldParse = bool.TryParse(userResponse, out active);
+                } while (!couldParse);
+                selectedMonster.Active = active;
             }
 
             //
@@ -466,7 +576,9 @@ namespace Assessment_ClientApp2
                 string monsterString =
                     monsters[index].Name + "," +
                     monsters[index].Age + "," +
-                    monsters[index].Attitude;
+                    monsters[index].Attitude + "," + 
+                    monsters[index].InTribe + "," +
+                    monsters[index].Active;
 
                 monstersString[index] = monsterString;
             }
@@ -532,10 +644,27 @@ namespace Assessment_ClientApp2
         /// <param name="monster">monster object</param>
         static void MonsterInfo(Monster monster)
         {
-            Console.WriteLine($"\tName: {monster.Name}");
-            Console.WriteLine($"\tAge: {monster.Age}");
-            Console.WriteLine($"\tAttitude: {monster.Attitude}");
-            Console.WriteLine("\t" + monster.Greeting());
+            Console.WriteLine("\t********************************************************************************");
+            Console.WriteLine("\tName".PadRight(15) + 
+                "Age".PadRight(5) + 
+                "Attitude".PadRight(10) + 
+                "Tribe".PadRight(10) + 
+                "Status Of Activity".PadRight(20) + 
+                "Greeting".PadRight(30));
+            Console.WriteLine("\t********************************************************************************");
+            Console.WriteLine($"\t{monster.Name}".PadRight(15) + 
+                $"{monster.Age}".PadRight(5) + 
+                $"{monster.Attitude}".PadRight(10) + 
+                $"{monster.InTribe}".PadRight(10) + 
+                $"{monster.Active}".PadRight(20) +
+                $"{monster.Greeting()}".PadRight(30));
+
+            //Console.WriteLine($"\tName: {monster.Name}");
+            //Console.WriteLine($"\tAge: {monster.Age}");
+            //Console.WriteLine($"\tAttitude: {monster.Attitude}");
+            //Console.WriteLine($"\tTribe: {monster.InTribe}");
+            //Console.WriteLine($"\tStatus of Activity: {monster.Active}");
+            //Console.WriteLine("\t" + monster.Greeting());
         }
 
         /// <summary>
