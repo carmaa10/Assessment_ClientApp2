@@ -83,6 +83,24 @@ namespace Assessment_ClientApp2
                     Active = true
                 },
 
+                new Monster()
+                {
+                    Name = "Angela",
+                    Age = 5887,
+                    Attitude = Monster.EmotionalState.angry,
+                    InTribe = Monster.Tribe.nerds,
+                    Active = false
+                },
+
+                new Monster()
+                {
+                    Name = "Desi",
+                    Age = 3,
+                    Attitude = Monster.EmotionalState.bored,
+                    InTribe = Monster.Tribe.weirdos,
+                    Active = true
+                }
+
             };
 
             return monsters;

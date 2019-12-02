@@ -22,6 +22,7 @@ namespace Assessment_ClientApp2
 
         public enum Tribe
         {
+            none,
             nerds,
             geeks,
             weirdos
